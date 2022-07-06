@@ -10,7 +10,6 @@ const widthOfWord = 5;
 let column = 0;
 let row = 0;
 
-
 let gameOver = false;
 let words: string = wordList[Math.floor(Math.random() * wordList.length)].toUpperCase();
 console.log(words);
@@ -25,18 +24,14 @@ let keyboard = [
 ]
 
 window.addEventListener('load', (e) => {
-    if (gameOver == true) {
-        console.log("game over");
-
-        answer.innerText = 'game over'
-    };
-    if (!gameOver && row == 6) {
-        gameOver = true;
-        answer.innerHTML = words;
+    if (answer.innerText == "correct guess") {
+        window.location.href = './'
     }
-    initializer();
-    createdKeypad();
-    findClickedBtn();
+    else {
+        initializer();
+        createdKeypad();
+        findClickedBtn();
+    }
 })
 
 const initializer = () => {
@@ -55,6 +50,10 @@ const initializer = () => {
         board.appendChild(rowOfGuss);
         row++;
     }
+    document.addEventListener('keyup',(e)=>{
+        // alert(e.code);
+
+    })
 
 
 }
@@ -85,7 +84,9 @@ const giveClass = (key: string, keyInput: HTMLSpanElement) => {
     }
     else {
         keyInput.className = 'key_input';
-        keyInput.id = "key" + keyInput;
+        keyInput.id = "key" + key;
+        console.log(keyInput.id);
+        
     }
 }
 
@@ -102,8 +103,10 @@ const findClickedBtn = () => {
     });
     enter.addEventListener('click', (e) => {
         // console.log("enter", row, column);
-        let guess:string = guessedWord();
-        if(guess.length<5){
+        let guess: string = guessedWord();
+        console.log(guess.length, "length");
+
+        if (guess.length < 5) {
             setAnswerDivData("too short");
             return;
         }
@@ -142,7 +145,7 @@ const backspaceFunctionality = () => {
 
 const update = () => {
 
-    let guess:string = guessedWord();
+    let guess: string = guessedWord();
 
     if (!newGuessList.includes(guess)) {
         answer.innerText = "Not in word list";
@@ -155,7 +158,7 @@ const update = () => {
     // column = 0;
 }
 
-const guessedWord = ()=>{
+const guessedWord = () => {
     let guess: string = "";
     answer.innerText = "";
     let count = 0;
@@ -191,9 +194,6 @@ const checkAllCorrectLetters = (correct: number, letterCount: any) => {
         const id = row.toString() + '-' + (count).toString();
         const tile = document.getElementById(id) as HTMLInputElement;
         let letter = tile.value;
-        if(letter.length<5){
-            setAnswerDivData("too short");
-        }
         if (words[count] == letter) {
             tile.classList.add('correct');
             let keyboardKey = document.getElementById("key" + letter) as HTMLSpanElement;
@@ -205,7 +205,7 @@ const checkAllCorrectLetters = (correct: number, letterCount: any) => {
         if (correct == widthOfWord) {
             count = widthOfWord;
             setAnswerDivData("correct guess");
-
+            gameOver = true;
         }
         count += 1;
     }
@@ -234,13 +234,12 @@ const lettersPresentInWrongPosition = (correct: number, letterCount: any) => {
                 tile.classList.add('absent');
                 let keyboardKey = document.getElementById("key" + letter);
                 keyboardKey?.classList.add('absent');
-
             }
         }
         count += 1;
 
     }
-    if(row>=widthOfWord){
+    if (row >= widthOfWord) {
         setAnswerDivData("game over");
     }
 
