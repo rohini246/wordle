@@ -4,7 +4,7 @@
 }
 
 #keybord{
-    box-shadow: -3px -3px 5px rgb(63, 63, 63) , 3px 3px 5px black;
+    box-shadow: -3px -3px 5px , 3px 3px 5px ;
     width: 680px;
     margin:200px auto 50px;
     display: flex;
@@ -15,12 +15,14 @@
 }
 
 .tile {  
-    border: 2px solid lightgray;  
+    border: 2px solid ;  
     display: inline-block;
     margin: 2.5px;
     height: 8vh;
     width: 4vw;
     border-radius: 7px;
+    font-size: 20px;
+    text-align: center;
     justify-content: center;
     align-items: center;
 }
@@ -31,6 +33,7 @@
     height: 4vh;
     width: 3vw; 
     border-radius: 7px;
+    font-size: 20px;
     background-color: grey;
     cursor: pointer;
 }
@@ -39,8 +42,9 @@
     display: inline-block;
     margin: 5px;
     height: 4vh;
-    width: 3vw; 
+    width: 4vw; 
     border-radius: 7px;
+    font-size: 20px;
     background-color: grey;
     cursor: pointer;
 
@@ -50,7 +54,7 @@
     display: inline-block;
     margin: 5px;
     height: 4vh;
-    width: 3vw; 
+    width: 4vw; 
     border-radius: 7px;
     background-color: grey;
     cursor: pointer;
@@ -75,37 +79,11 @@
 }
 
 
-.keyboard-row {
-    width: 400px;
-    margin: 0 auto;
-    display: flex;
-    flex-wrap: wrap;
+.play_again{
+    background-color: #e6e8ea;
+    columns: black;
+    border-radius: 5px;
 }
-
-.key-tile {
-    width: 36px;
-    height: 40px;
-    margin: 1px;
-    border: 1px solid lightgray;
-
-   
-    font-size: 20px;
-    font-weight: bold;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.enter-key-tile {
-    width: 76px;
-    height: 40px;
-    margin: 1px;
-    border: 1px solid lightgray;
-
-   
-    font-size: 20px;
-    font-weight: bold;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.correct_guess{
+    color:#6AAA64;
 }
