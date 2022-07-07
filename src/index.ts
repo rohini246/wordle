@@ -1,8 +1,46 @@
-import { wordList, guessList } from "./list";
+import { wordList, sixWordList } from "./list";
 
 const board = document.querySelector('#board') as HTMLDivElement;
 const keyboardDiv = document.querySelector('#keyboard') as HTMLDivElement;
 const answer = document.querySelector('#answer') as HTMLDivElement;
+const decider: string = localStorage.getItem("decider")!;
+const change = document.querySelector("#change") as HTMLButtonElement;
+change.innerText = localStorage.getItem("decider")!;
+
+change.addEventListener('click',(e)=>{
+    e.preventDefault();
+    const value = localStorage.getItem("decider")!;
+    if(value=="row"){
+        change.innerText = "column"
+        localStorage.removeItem("decider");
+        localStorage.setItem("decider","column");
+        window.location.href = './'
+    }
+    else{
+        change.innerText = "row";
+        localStorage.removeItem("decider");
+        localStorage.setItem("decider","row");
+        window.location.href = './'
+    }
+})
+
+// const rowRadio = document.querySelector('#row') as HTMLInputElement;
+// const colRadio = document.querySelector('#column') as HTMLInputElement;
+// rowRadio.addEventListener('click', (e) => {
+//     e.preventDefault();
+//     localStorage.removeItem("decider");
+//     localStorage.setItem('decider', "row");
+//     window.location.href = './'
+// });
+
+// colRadio.addEventListener('click', (e) => {
+//     e.preventDefault();
+//     localStorage.removeItem("decider");
+//     localStorage.setItem("decider", "column");
+//     console.log("col");
+//     window.location.href = './'
+
+// })
 
 const heightOfGuessBoxes = 6;
 const widthOfWord = 5;
@@ -11,28 +49,16 @@ let column = 0;
 let row = 0;
 
 let gameOver = false;
-let words: string = wordList[Math.floor(Math.random() * wordList.length)].toUpperCase();
+let words: string;
+decider == "row" ? words = wordList[Math.floor(Math.random() * wordList.length)].toUpperCase() : words = sixWordList[Math.floor(Math.random() * sixWordList.length)].toUpperCase();
+
 console.log(words);
-
-
-let newGuessList = guessList.concat(wordList);
 
 let keyboard = [
     ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
     ["A", "S", "D", "F", "G", "H", "J", "K", "L"],
     ["⌫", "Z", "X", "C", "V", "B", "N", "M", "Enter"]
 ]
-
-window.addEventListener('load', (e) => {
-    if (answer.innerText == "correct guess") {
-        window.location.href = './'
-    }
-    else {
-        initializer();
-        createdKeypad();
-        findClickedBtn();
-    }
-})
 
 const initializer = () => {
     let row = 0;
@@ -50,12 +76,8 @@ const initializer = () => {
         board.appendChild(rowOfGuss);
         row++;
     }
-    document.addEventListener('keyup',(e)=>{
-        // alert(e.code);
-
+    document.addEventListener('keyup', (e) => {
     })
-
-
 }
 
 const createdKeypad = () => {
@@ -74,11 +96,9 @@ const createdKeypad = () => {
 const giveClass = (key: string, keyInput: HTMLSpanElement) => {
     if (key === "Enter") {
         keyInput.classList.add('enter');
-        // keyInput.className = 'enter';
         keyInput.id = 'enter'
     }
     else if (key === "⌫") {
-        // keyInput.className = 'backspace';
         keyInput.classList.add('backspace');
         keyInput.id = 'backspace';
     }
@@ -86,7 +106,7 @@ const giveClass = (key: string, keyInput: HTMLSpanElement) => {
         keyInput.className = 'key_input';
         keyInput.id = "key" + key;
         console.log(keyInput.id);
-        
+
     }
 }
 
@@ -94,6 +114,9 @@ const findClickedBtn = () => {
     const keys = document.querySelectorAll('.key_input');
     const backspace = document.querySelector('.backspace') as HTMLSpanElement;
     const enter = document.querySelector('.enter') as HTMLSpanElement;
+    if (answer.innerText == "correct guess") {
+        return;
+    }
     keys.forEach(key => {
         callEventListener(key)
     });
@@ -102,18 +125,25 @@ const findClickedBtn = () => {
 
     });
     enter.addEventListener('click', (e) => {
-        // console.log("enter", row, column);
         let guess: string = guessedWord();
-        console.log(guess.length, "length");
-
-        if (guess.length < 5) {
-            setAnswerDivData("too short");
-            return;
+        if (decider == "column") {
+            if (guess.length < heightOfGuessBoxes) {
+                setAnswerDivData("too short");
+                return;
+            }
+            update();
+            row = 0;
+            column += 1;
         }
-        update();
-        row += 1;
-        column = 0;
-
+        else {
+            if (guess.length < widthOfWord) {
+                setAnswerDivData("too short");
+                return;
+            }
+            update();
+            row += 1;
+            column = 0;
+        }
     })
 }
 
@@ -121,52 +151,64 @@ const callEventListener = (key: Element) => {
     key.addEventListener('click', (e) => {
         e.preventDefault();
         addInputInTiles(key.textContent!);
-        // console.log(key.textContent);
     })
 }
 
 const addInputInTiles = (key: string) => {
-    if (column < widthOfWord) {
-        // console.log(row, column);
-        const id = row.toString() + '-' + column.toString();
-        const tile = document.getElementById(id) as HTMLInputElement;
-        tile.value = key;
-        column += 1;
+    if (decider === "column") {
+        if (row < heightOfGuessBoxes) {
+            const id = row.toString() + '-' + column.toString();
+            const tile = document.getElementById(id) as HTMLInputElement;
+            tile.value = key;
+            row += 1;
+        }
+    }
+    else {
+        if (column < widthOfWord) {
+            const id = row.toString() + '-' + column.toString();
+            const tile = document.getElementById(id) as HTMLInputElement;
+            tile.value = key;
+            column += 1;
+        }
     }
 }
 const backspaceFunctionality = () => {
-    if (0 < column && column <= widthOfWord) {
-        const id = row.toString() + '-' + (column - 1).toString();
-        const tile = document.getElementById(id) as HTMLInputElement;
-        tile.value = "";
-        column -= 1;
+    if (decider == "column") {
+        if (0 < row && row <= heightOfGuessBoxes) {
+            const id = (row - 1).toString() + '-' + (column).toString();
+            const tile = document.getElementById(id) as HTMLInputElement;
+            tile.value = "";
+            row -= 1;
+        }
+    }
+    else {
+        if (0 < column && column <= widthOfWord) {
+            const id = row.toString() + '-' + (column - 1).toString();
+            const tile = document.getElementById(id) as HTMLInputElement;
+            tile.value = "";
+            column -= 1;
+        }
     }
 }
 
 const update = () => {
-
-    let guess: string = guessedWord();
-
-    if (!newGuessList.includes(guess)) {
-        answer.innerText = "Not in word list";
-        // return;
-    }
     let correct = 0;
     let letterCount = wordMap();
     checkAllCorrectLetters(correct, letterCount);
-    // row += 1;
-    // column = 0;
 }
 
 const guessedWord = () => {
     let guess: string = "";
     answer.innerText = "";
     let count = 0;
-    while (count < widthOfWord) {
-        const id = row.toString() + '-' + (count).toString();
+    let length = 0;
+    decider === "row" ? length = widthOfWord : length = heightOfGuessBoxes;
+    while (count < length) {
+        let id: string = "";
+        decider == "row" ? id = row.toString() + '-' + count.toString() : id = count.toString() + '-' + (column).toString();
         console.log(id, "guess");
         const tile = document.getElementById(id) as HTMLInputElement;
-        let letter = tile.value;
+        let letter = tile.value!;
         guess += letter;
         count += 1;
     }
@@ -190,8 +232,11 @@ const wordMap = () => {
 
 const checkAllCorrectLetters = (correct: number, letterCount: any) => {
     let count = 0;
-    while (count < widthOfWord) {
-        const id = row.toString() + '-' + (count).toString();
+    let length = 0;
+    decider == "row" ? length = widthOfWord : length = heightOfGuessBoxes;
+    while (count < length) {
+        let id: string = '';
+        decider == "row" ? id = row.toString() + '-' + (count).toString() : id = count.toString() + '-' + (column).toString();
         const tile = document.getElementById(id) as HTMLInputElement;
         let letter = tile.value;
         if (words[count] == letter) {
@@ -202,22 +247,24 @@ const checkAllCorrectLetters = (correct: number, letterCount: any) => {
             correct += 1;
             letterCount[letter] -= 1;
         }
-        if (correct == widthOfWord) {
-            count = widthOfWord;
+        if (correct == length) {
+            count = length;
             setAnswerDivData("correct guess");
             gameOver = true;
         }
         count += 1;
     }
-
     lettersPresentInWrongPosition(correct, letterCount);
 
 }
 
 const lettersPresentInWrongPosition = (correct: number, letterCount: any) => {
     let count = 0;
-    while (count < widthOfWord) {
-        const id = row.toString() + '-' + (count).toString();
+    let length = 0;
+    decider === "row" ? length = widthOfWord : length = heightOfGuessBoxes;
+    while (count < length) {
+        let id: string = '';
+        decider === "row" ? id = row.toString() + '-' + (count).toString() : id = count.toString() + '-' + (column).toString();
         const tile = document.getElementById(id) as HTMLInputElement;
         let letter = tile.value;
         if (!tile.classList.contains('correct')) {
@@ -226,7 +273,6 @@ const lettersPresentInWrongPosition = (correct: number, letterCount: any) => {
                 let keyboardKey = document.getElementById("key" + letter) as HTMLSpanElement;
                 if (!keyboardKey?.classList.contains('correct')) {
                     keyboardKey?.classList.add('present');
-                    // keyboardKey.style.backgroundColor = "green";
                 }
                 letterCount[letter] -= 1;
             }
@@ -239,10 +285,16 @@ const lettersPresentInWrongPosition = (correct: number, letterCount: any) => {
         count += 1;
 
     }
-    if (row >= widthOfWord) {
-        setAnswerDivData("game over");
+    if (decider == "row") {
+        if (row >= widthOfWord) {
+            setAnswerDivData("game over");
+        }
     }
-
+    else {
+        if (column >= heightOfGuessBoxes) {
+            setAnswerDivData('game over');
+        }
+    }
 }
 
 const setAnswerDivData = (value: string) => {
@@ -253,12 +305,14 @@ const setAnswerDivData = (value: string) => {
     playAgain.innerText = "Play Again";
     answer.appendChild(document.createElement('br'));
     answer.appendChild(playAgain);
-
     playAgain.addEventListener('click', (e) => {
         e.preventDefault();
         window.location.href = './';
     })
 
     gameOver = true;
-
 }
+
+initializer();
+createdKeypad();
+findClickedBtn();
